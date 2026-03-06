@@ -1,5 +1,5 @@
 --====================================
--- CUBNIT V5 - VERSÃO INTEGRAL DEFINITIVA (SISTEMA DE NAVEGAÇÃO + ABA II)
+-- CUBNIT V5 - VERSÃO INTEGRAL DEFINITIVA (TEMA CINZA + LISTA FIX)
 --====================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -17,12 +17,13 @@ local Camera = workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
 --====================================
--- CONFIGURAÇÕES DE CORES (TONS ROSA/DARK)
+-- CONFIGURAÇÕES DE CORES (TEMA CINZA)
 --====================================
-local ThemePurple = Color3.fromRGB(255, 0, 200) -- Rosa vibrante para bordas e título
-local ButtonColor = Color3.fromRGB(130, 0, 100) -- Rosa Dark para botões
-local SlotBg = Color3.fromRGB(15, 15, 15) -- Fundo sólido (não transparente)
-local DarkPurple = Color3.fromRGB(25, 10, 25)
+local ThemeGrey = Color3.fromRGB(150, 150, 150) 
+local MainBg = Color3.fromRGB(10, 10, 10)
+local SlotBg = Color3.fromRGB(15, 15, 15)
+local ButtonColor = Color3.fromRGB(40, 40, 40) 
+local DarkGrey = Color3.fromRGB(25, 25, 25)
 
 local Remotes = {
     Wear = ReplicatedStorage:FindFirstChild("Wear", true),
@@ -30,7 +31,6 @@ local Remotes = {
     ChangeBodyColor = ReplicatedStorage:FindFirstChild("ChangeBodyColor", true)
 }
 
--- Variáveis de Estado
 local selectedPlayerForSkin = nil
 local antiSitEnabled = false
 local antiSitLoop = nil
@@ -97,111 +97,62 @@ Gui.Name = "CubnitV5_UI"
 local MainFrame = Instance.new("Frame", Gui)
 MainFrame.Size = UDim2.new(0, 560, 0, 320)
 MainFrame.Position = UDim2.new(0.5, -280, 0.5, -160)
-MainFrame.BackgroundTransparency = 1 -- Para mostrar a imagem abaixo
+MainFrame.BackgroundTransparency = 1 
 MainFrame.Visible = false
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
--- FUNDO COM O ID SOLICITADO
 local BackgroundImg = Instance.new("ImageLabel", MainFrame)
-BackgroundImg.Name = "CustomBackground"
 BackgroundImg.Size = UDim2.new(1, 0, 1, 0)
-BackgroundImg.Image = "rbxassetid://122197113339424" -- ID fornecido
+BackgroundImg.Image = "rbxassetid://130442473593917"
 BackgroundImg.ZIndex = 0
 Instance.new("UICorner", BackgroundImg).CornerRadius = UDim.new(0, 10)
 
 local MainStroke = Instance.new("UIStroke", MainFrame)
-MainStroke.Color = ThemePurple; MainStroke.Thickness = 2
+MainStroke.Color = ThemeGrey; MainStroke.Thickness = 2
 MakeDraggable(MainFrame)
 
--- NOME DO SCRIPT MAIS VISÍVEL (COM SOMBRA)
 local TitleLabel = Instance.new("TextLabel", MainFrame)
-TitleLabel.Size = UDim2.new(1, -160, 0, 40); TitleLabel.Position = UDim2.new(0, 20, 0, 5); TitleLabel.BackgroundTransparency = 1
+TitleLabel.Size = UDim2.new(1, -40, 0, 40); TitleLabel.Position = UDim2.new(0, 20, 0, 5); TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "CUBNIT V5 - VERSÃO INTEGRAL DEFINITIVA"
-TitleLabel.TextColor3 = ThemePurple
-TitleLabel.Font = Enum.Font.GothamBold --
-TitleLabel.TextSize = 17 
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left; TitleLabel.ZIndex = 2
-local TitleShadow = Instance.new("UIStroke", TitleLabel) 
+TitleLabel.TextColor3 = Color3.new(1, 1, 1); TitleLabel.Font = Enum.Font.GothamBold; TitleLabel.TextSize = 17; TitleLabel.TextXAlignment = Enum.TextXAlignment.Left; TitleLabel.ZIndex = 2
+local TitleShadow = Instance.new("UIStroke", TitleLabel)
 TitleShadow.Color = Color3.new(0,0,0); TitleShadow.Thickness = 1.5
 
 --====================================
--- SISTEMA DE NAVEGAÇÃO (ABAS I, II, III)
+-- SLOTS VIEW (ESQUERDA)
 --====================================
-local TabContainer = Instance.new("Frame", MainFrame)
-TabContainer.Size = UDim2.new(0, 140, 0, 30); TabContainer.Position = UDim2.new(0, 400, 0, 10); TabContainer.BackgroundTransparency = 1; TabContainer.ZIndex = 2
-local TabLayout = Instance.new("UIListLayout", TabContainer); TabLayout.FillDirection = Enum.FillDirection.Horizontal; TabLayout.Padding = UDim.new(0, 10); TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-
-local Pages = {}
-local function CreatePage()
-    local p = Instance.new("Frame", MainFrame)
-    p.Size = UDim2.new(1, 0, 1, -50); p.Position = UDim2.new(0, 0, 0, 50); p.BackgroundTransparency = 1; p.Visible = false; p.ZIndex = 1
-    return p
-end
-
--- PÁGINAS (ABAS)
-local Page1 = CreatePage(); Page1.Visible = true -- Página Ativa Inicial
-local Page2 = CreatePage()
-local Page3 = CreatePage() -- Página III vazia
-
-local function SelectTab(tabBtn, page)
-    -- Desativa todas as abas
-    for _, p in pairs({Page1, Page2, Page3}) do p.Visible = false end
-    for _, b in pairs(TabContainer:GetChildren()) do if b:IsA("TextButton") then b.BackgroundColor3 = Color3.fromRGB(30,30,30) end end
-    
-    -- Ativa a aba selecionada
-    page.Visible = true
-    tabBtn.BackgroundColor3 = ThemePurple --
-end
-
-local function CreateTabBtn(name, active, page)
-    local btn = Instance.new("TextButton", TabContainer)
-    btn.Size = UDim2.new(0, 35, 0, 25); 
-    btn.BackgroundColor3 = active and ThemePurple or Color3.fromRGB(30,30,30); 
-    btn.Text = name; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 14; Instance.new("UICorner", btn)
-    btn.MouseButton1Click:Connect(function() SelectTab(btn, page) end)
-end
-
-CreateTabBtn("I", true, Page1); CreateTabBtn("II", false, Page2); CreateTabBtn("III", false, Page3) --
-
---====================================
--- ABA I: CONTEÚDO ORIGINAL
---====================================
-local SlotGridPage1 = Instance.new("Frame", Page1)
-SlotGridPage1.Size = UDim2.new(0, 260, 0, 260); SlotGridPage1.Position = UDim2.new(0, 15, 0, 0); SlotGridPage1.BackgroundTransparency = 1
-local SlotGrid = Instance.new("UIGridLayout", SlotGridPage1); SlotGrid.CellPadding = UDim2.new(0, 8, 0, 8); SlotGrid.CellSize = UDim2.new(1, 0, 0, 80)
-
--- SLOTS ABA I
-local function CreateSlotUI(name)
-    local SlotFrame = Instance.new("Frame", SlotGridPage1)
-    SlotFrame.BackgroundColor3 = SlotBg; SlotFrame.BackgroundTransparency = 0 -- Não Transparente
-    Instance.new("UICorner", SlotFrame).CornerRadius = UDim.new(0, 8)
+local function CreateSlotUI(yPos)
+    local SlotFrame = Instance.new("Frame", MainFrame)
+    SlotFrame.Size = UDim2.new(0, 260, 0, 80); SlotFrame.Position = UDim2.new(0, 15, 0, yPos); SlotFrame.BackgroundColor3 = SlotBg; SlotFrame.BackgroundTransparency = 0; Instance.new("UICorner", SlotFrame).CornerRadius = UDim.new(0, 8); SlotFrame.ZIndex = 1
     
     local Icon = Instance.new("ImageLabel", SlotFrame)
-    Icon.Size = UDim2.new(0, 45, 0, 45); Icon.Position = UDim2.new(0, 10, 0, 17); Icon.BackgroundColor3 = Color3.fromRGB(25,25,25); Icon.Image = "rbxassetid://6031063060"; Icon.ImageColor3 = ThemePurple; Icon.ZIndex = 2
+    Icon.Size = UDim2.new(0, 45, 0, 45); Icon.Position = UDim2.new(0, 10, 0, 17); Icon.BackgroundColor3 = Color3.fromRGB(25,25,25); Icon.Image = "rbxassetid://6031063060"; Icon.ImageColor3 = ThemeGrey; Instance.new("UICorner", Icon).CornerRadius = UDim.new(0, 6); Icon.ZIndex = 2
 
     local Input = Instance.new("TextBox", SlotFrame)
-    Input.Size = UDim2.new(0, 185, 0, 30); Input.Position = UDim2.new(0, 65, 0, 10); Input.BackgroundColor3 = Color3.fromRGB(12,12,12); Input.Text = ""; Input.PlaceholderText = "Player Name..."; Input.TextColor3 = Color3.new(1,1,1); Input.Font = Enum.Font.Gotham; Input.TextSize = 13; Input.ZIndex = 2
+    Input.Size = UDim2.new(0, 185, 0, 30); Input.Position = UDim2.new(0, 65, 0, 10); Input.BackgroundColor3 = Color3.fromRGB(12,12,12); Input.Text = ""; Input.PlaceholderText = "Player Name..."; Input.TextColor3 = Color3.new(1,1,1); Input.Font = Enum.Font.Gotham; Input.TextSize = 13; Instance.new("UICorner", Input); Input.ZIndex = 2
 
     local ViewBtn = Instance.new("TextButton", SlotFrame)
-    ViewBtn.Size = UDim2.new(0, 185, 0, 28); ViewBtn.Position = UDim2.new(0, 65, 0, 45); ViewBtn.BackgroundColor3 = ButtonColor; ViewBtn.Text = "View Player"; ViewBtn.TextColor3 = Color3.new(1,1,1); ViewBtn.Font = Enum.Font.GothamBold; ViewBtn.TextSize = 12; ViewBtn.ZIndex = 2
-    
-    -- Lógica Input FocusLost e View Player
+    ViewBtn.Size = UDim2.new(0, 185, 0, 28); ViewBtn.Position = UDim2.new(0, 65, 0, 45); ViewBtn.BackgroundColor3 = ButtonColor; ViewBtn.Text = "View Player"; ViewBtn.TextColor3 = Color3.new(1,1,1); ViewBtn.Font = Enum.Font.GothamBold; ViewBtn.TextSize = 12; Instance.new("UICorner", ViewBtn); ViewBtn.ZIndex = 2
+
     local SlotData = {Target = nil, Viewing = false, Connection = nil}
+
     Input.FocusLost:Connect(function()
         local n = Input.Text:lower()
         for _, v in pairs(Players:GetPlayers()) do
             if v.Name:lower():sub(1, #n) == n or v.DisplayName:lower():sub(1, #n) == n then
                 SlotData.Target = v; Input.Text = v.DisplayName
-                Icon.Image = Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150); Icon.ImageColor3 = Color3.new(1,1,1)
+                local content, isReady = Players:GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+                Icon.Image = content; Icon.ImageColor3 = Color3.new(1,1,1)
                 break
             end
         end
     end)
+
     ViewBtn.MouseButton1Click:Connect(function()
         if not SlotData.Target then return end
         SlotData.Viewing = not SlotData.Viewing
         if SlotData.Viewing then
-            ViewBtn.Text = "Stop View"; ViewBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            ViewBtn.Text = "Stop View"; ViewBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
             SlotData.Connection = RunService.RenderStepped:Connect(function()
                 if SlotData.Target and SlotData.Target.Character then Camera.CameraSubject = SlotData.Target.Character:FindFirstChildOfClass("Humanoid") end
             end)
@@ -213,24 +164,24 @@ local function CreateSlotUI(name)
     end)
 end
 
-CreateSlotUI("S1"); CreateSlotUI("S2"); CreateSlotUI("S3")
+CreateSlotUI(50); CreateSlotUI(138); CreateSlotUI(226)
 
--- DIREITA ABA I: COPY SKIN E UTILS
-local RightSidePage1 = Instance.new("Frame", Page1)
-RightSidePage1.Size = UDim2.new(0, 260, 0, 260); RightSidePage1.Position = UDim2.new(0, 285, 0, 0); RightSidePage1.BackgroundTransparency = 1; RightSidePage1.ZIndex = 1
+--====================================
+-- COPY SKIN & PLAYLIST (DIREITA)
+--====================================
+local RightSide = Instance.new("Frame", MainFrame)
+RightSide.Size = UDim2.new(0, 260, 0, 260); RightSide.Position = UDim2.new(0, 285, 0, 45); RightSide.BackgroundTransparency = 1; RightSide.ZIndex = 1
 
--- COPY SKIN FRAME (SÓLIDO)
-local CopySkinFrame = Instance.new("Frame", RightSidePage1)
+local CopySkinFrame = Instance.new("Frame", RightSide)
 CopySkinFrame.Size = UDim2.new(1, 0, 0, 105); CopySkinFrame.BackgroundColor3 = SlotBg; CopySkinFrame.BackgroundTransparency = 0; Instance.new("UICorner", CopySkinFrame); CopySkinFrame.ZIndex = 1
-local CS_Stroke = Instance.new("UIStroke", CopySkinFrame); CS_Stroke.Color = ThemePurple; CS_Stroke.Thickness = 1.2
+local CS_Stroke = Instance.new("UIStroke", CopySkinFrame); CS_Stroke.Color = ThemeGrey; CS_Stroke.Thickness = 1.2
 
 local SelectBtn = Instance.new("TextButton", CopySkinFrame)
-SelectBtn.Size = UDim2.new(1, -20, 0, 30); SelectBtn.Position = UDim2.new(0, 10, 0, 20); SelectBtn.BackgroundColor3 = Color3.fromRGB(10,10,10); SelectBtn.Text = "Select Player..."; SelectBtn.TextColor3 = Color3.new(1,1,1); SelectBtn.Font = Enum.Font.Gotham; SelectBtn.ZIndex = 2
+SelectBtn.Size = UDim2.new(1, -20, 0, 30); SelectBtn.Position = UDim2.new(0, 10, 0, 20); SelectBtn.BackgroundColor3 = Color3.fromRGB(10,10,10); SelectBtn.Text = "Select Player..."; SelectBtn.TextColor3 = Color3.new(1,1,1); SelectBtn.Font = Enum.Font.Gotham; Instance.new("UICorner", SelectBtn); SelectBtn.ZIndex = 2
 
--- LISTA DE JOGADORES (PLAYLISTFRAME) COM ZINDEX ALTO
+-- LISTA DE JOGADORES (REATIVADA)
 local PlaylistFrame = Instance.new("ScrollingFrame", MainFrame)
-PlaylistFrame.Size = UDim2.new(0, 240, 0, 160); PlaylistFrame.Position = UDim2.new(0, 295, 0, 85); PlaylistFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25); PlaylistFrame.Visible = false; PlaylistFrame.ZIndex = 50 -- ZIndex Alto para garantir sobreposição
-PlaylistFrame.ScrollBarThickness = 4; Instance.new("UICorner", PlaylistFrame)
+PlaylistFrame.Size = UDim2.new(0, 240, 0, 160); PlaylistFrame.Position = UDim2.new(0, 295, 0, 85); PlaylistFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25); PlaylistFrame.Visible = false; PlaylistFrame.ZIndex = 50; PlaylistFrame.ScrollBarThickness = 4; Instance.new("UICorner", PlaylistFrame)
 local ListLayout = Instance.new("UIListLayout", PlaylistFrame); ListLayout.Padding = UDim.new(0, 4); ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 local function UpdatePlaylist()
@@ -238,25 +189,33 @@ local function UpdatePlaylist()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LocalPlayer then
             local b = Instance.new("TextButton", PlaylistFrame)
-            b.Size = UDim2.new(0, 215, 0, 30); b.BackgroundColor3 = Color3.fromRGB(40,40,40); b.Text = p.DisplayName; b.TextColor3 = Color3.new(1,1,1); b.Font = Enum.Font.GothamBold; b.TextSize = 12; b.ZIndex = 51 -- ZIndex dentro da lista
-            b.MouseButton1Click:Connect(function() selectedPlayerForSkin = p; SelectBtn.Text = p.DisplayName; PlaylistFrame.Visible = false end)
-            Instance.new("UICorner", b)
+            b.Size = UDim2.new(0, 215, 0, 30); b.BackgroundColor3 = Color3.fromRGB(40,40,40); b.Text = p.DisplayName; b.TextColor3 = Color3.new(1,1,1); b.Font = Enum.Font.GothamBold; b.TextSize = 12; b.ZIndex = 51; Instance.new("UICorner", b)
+            b.MouseButton1Click:Connect(function() 
+                selectedPlayerForSkin = p 
+                SelectBtn.Text = p.DisplayName 
+                PlaylistFrame.Visible = false 
+            end)
         end
     end
     PlaylistFrame.CanvasSize = UDim2.new(0,0,0, ListLayout.AbsoluteContentSize.Y + 10)
 end
-SelectBtn.MouseButton1Click:Connect(function() PlaylistFrame.Visible = not PlaylistFrame.Visible; if PlaylistFrame.Visible then UpdatePlaylist() end end)
+
+SelectBtn.MouseButton1Click:Connect(function() 
+    PlaylistFrame.Visible = not PlaylistFrame.Visible 
+    if PlaylistFrame.Visible then UpdatePlaylist() end 
+end)
 
 local ExecuteCopy = Instance.new("TextButton", CopySkinFrame)
-ExecuteCopy.Size = UDim2.new(1, -20, 0, 35); ExecuteCopy.Position = UDim2.new(0, 10, 0, 60); ExecuteCopy.BackgroundColor3 = ButtonColor; ExecuteCopy.Text = "EXECUTE COPY"; ExecuteCopy.TextColor3 = Color3.new(1,1,1); ExecuteCopy.Font = Enum.Font.GothamBold; ExecuteCopy.ZIndex = 2
--- Lógica Execute Copy
+ExecuteCopy.Size = UDim2.new(1, -20, 0, 35); ExecuteCopy.Position = UDim2.new(0, 10, 0, 60); ExecuteCopy.BackgroundColor3 = ButtonColor; ExecuteCopy.Text = "EXECUTE COPY"; ExecuteCopy.TextColor3 = Color3.new(1,1,1); ExecuteCopy.Font = Enum.Font.GothamBold; Instance.new("UICorner", ExecuteCopy); ExecuteCopy.ZIndex = 2
+
 ExecuteCopy.MouseButton1Click:Connect(function()
     local TPlayer = selectedPlayerForSkin
     if not TPlayer or not TPlayer.Character then ExecuteCopy.Text = "SELECT ALVO!"; task.wait(1.5); ExecuteCopy.Text = "EXECUTE COPY"; return end
     local TChar, LChar = TPlayer.Character, LocalPlayer.Character
     local THum, LHum = TChar:FindFirstChildOfClass("Humanoid"), LChar:FindFirstChildOfClass("Humanoid")
     if THum and LHum and Remotes.Wear then
-        ExecuteCopy.Text = "MORFANDO..."; local successT, PDesc = pcall(function() return THum:GetAppliedDescription() end)
+        ExecuteCopy.Text = "MORFANDO..."; 
+        local successT, PDesc = pcall(function() return THum:GetAppliedDescription() end)
         local successL, LDesc = pcall(function() return LHum:GetAppliedDescription() end)
         local function SafeWear(id) if id and tonumber(id) and tonumber(id) ~= 0 then Remotes.Wear:InvokeServer(tonumber(id)) task.wait(0.3) end end
         if successL then for _, acc in ipairs(LDesc:GetAccessories(true)) do Remotes.Wear:InvokeServer(tonumber(acc.AssetId)) task.wait(0.15) end end
@@ -271,15 +230,22 @@ ExecuteCopy.MouseButton1Click:Connect(function()
     end
 end)
 
--- UTILS GRID ABA I (SÓLIDO)
-local UtilsFrame = Instance.new("Frame", RightSidePage1)
+--====================================
+-- UTILS GRID (CINZA)
+--====================================
+local UtilsFrame = Instance.new("Frame", RightSide)
 UtilsFrame.Size = UDim2.new(1, 0, 0, 150); UtilsFrame.Position = UDim2.new(0, 0, 0, 115); UtilsFrame.BackgroundTransparency = 1; UtilsFrame.ZIndex = 1
 local Grid = Instance.new("UIGridLayout", UtilsFrame); Grid.CellPadding = UDim2.new(0, 10, 0, 10); Grid.CellSize = UDim2.new(0, 125, 0, 35); Grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- ANTI-SIT COM DESIGN DARK ROSA (alinhado no grid)
+local function AddUtil(name, callback)
+    local btn = Instance.new("TextButton", UtilsFrame); btn.BackgroundColor3 = DarkGrey; btn.BackgroundTransparency = 0; btn.Text = name; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 12; Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6); btn.ZIndex = 2
+    local btnStroke = Instance.new("UIStroke", btn); btnStroke.Color = ThemeGrey; btnStroke.Thickness = 1.5; btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    btn.MouseButton1Click:Connect(callback)
+end
+
 local AntiSitToggleFrame = Instance.new("Frame", UtilsFrame)
-AntiSitToggleFrame.BackgroundColor3 = DarkPurple; AntiSitToggleFrame.BackgroundTransparency = 0; Instance.new("UICorner", AntiSitToggleFrame).CornerRadius = UDim.new(0, 6); AntiSitToggleFrame.ZIndex = 1
-local AS_Stroke = Instance.new("UIStroke", AntiSitToggleFrame); AS_Stroke.Color = ThemePurple; AS_Stroke.Thickness = 1.5
+AntiSitToggleFrame.BackgroundColor3 = DarkGrey; AntiSitToggleFrame.BackgroundTransparency = 0; Instance.new("UICorner", AntiSitToggleFrame).CornerRadius = UDim.new(0, 6); AntiSitToggleFrame.ZIndex = 1
+local AS_Stroke = Instance.new("UIStroke", AntiSitToggleFrame); AS_Stroke.Color = ThemeGrey; AS_Stroke.Thickness = 1.5
 
 local AS_Text = Instance.new("TextLabel", AntiSitToggleFrame)
 AS_Text.Size = UDim2.new(0.6, 0, 1, 0); AS_Text.BackgroundTransparency = 1; AS_Text.Text = "Anti-Sit"; AS_Text.TextColor3 = Color3.new(1,1,1); AS_Text.Font = Enum.Font.GothamBold; AS_Text.TextSize = 11; AS_Text.Position = UDim2.new(0.05, 0, 0, 0); AS_Text.ZIndex = 2
@@ -291,66 +257,50 @@ local ToggleBall = Instance.new("Frame", ToggleBg)
 ToggleBall.Size = UDim2.new(0, 14, 0, 14); ToggleBall.Position = UDim2.new(0, 2, 0.5, -7); ToggleBall.BackgroundColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", ToggleBall).CornerRadius = UDim.new(1, 0); ToggleBall.ZIndex = 3
 
 ToggleBg.MouseButton1Click:Connect(function()
-	antiSitEnabled = not antiSitEnabled; setSeatsEnabled(not antiSitEnabled)
-	if antiSitEnabled then ToggleBg.BackgroundColor3 = ThemePurple; ToggleBall:TweenPosition(UDim2.new(1, -16, 0.5, -7), "Out", "Quad", 0.15, true)
-	else ToggleBg.BackgroundColor3 = Color3.fromRGB(50, 50, 50); ToggleBall:TweenPosition(UDim2.new(0, 2, 0.5, -7), "Out", "Quad", 0.15, true) end
+	antiSitEnabled = not antiSitEnabled
+	setSeatsEnabled(not antiSitEnabled)
+	if antiSitEnabled then
+		ToggleBg.BackgroundColor3 = ThemeGrey
+		ToggleBall:TweenPosition(UDim2.new(1, -16, 0.5, -7), "Out", "Quad", 0.15, true)
+	else
+		ToggleBg.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		ToggleBall:TweenPosition(UDim2.new(0, 2, 0.5, -7), "Out", "Quad", 0.15, true)
+	end
 end)
 
-local function AddUtil(name, callback)
-    local btn = Instance.new("TextButton", UtilsFrame); btn.BackgroundColor3 = DarkPurple; btn.BackgroundTransparency = 0; btn.Text = name; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 12; btn.ZIndex = 2
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    local btnStroke = Instance.new("UIStroke", btn); btnStroke.Color = ThemePurple; btnStroke.Thickness = 1.5; btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    btn.MouseButton1Click:Connect(callback)
-end
-
 AddUtil("4K Graphics", function() loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-BrookHaven-UltraFX-44718"))() end)
-AddUtil("Tool TP", function() local t = Instance.new("Tool", LocalPlayer.Backpack); t.Name = "ToolTP"; t.RequiresHandle = false; t.Activated:Connect(function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.p + Vector3.new(0,3,0)) end) end)
-AddUtil("Click Name", function() local tool = Instance.new("Tool", LocalPlayer.Backpack); tool.Name = "ClickName"; tool.RequiresHandle = false; tool.Activated:Connect(function() local t = Mouse.Target; if t and t.Parent then local p = Players:GetPlayerFromCharacter(t.Parent) or Players:GetPlayerFromCharacter(t.Parent.Parent); if p then selectedPlayerForSkin = p; SelectBtn.Text = p.DisplayName end end end) end)
+AddUtil("Tool TP", function() 
+    local t = Instance.new("Tool", LocalPlayer.Backpack); t.Name = "ToolTP"; t.RequiresHandle = false
+    t.Activated:Connect(function() LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.p + Vector3.new(0,3,0)) end) 
+end)
+AddUtil("Click Name", function() 
+    local tool = Instance.new("Tool", LocalPlayer.Backpack); tool.Name = "ClickName"; tool.RequiresHandle = false
+    tool.Activated:Connect(function() 
+        local t = Mouse.Target; if t and t.Parent then 
+            local p = Players:GetPlayerFromCharacter(t.Parent) or Players:GetPlayerFromCharacter(t.Parent.Parent) 
+            if p then selectedPlayerForSkin = p; SelectBtn.Text = p.DisplayName end 
+        end 
+    end) 
+end)
 AddUtil("Emotes", function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-7yd7-I-Emote-Script-48024"))() end)
 AddUtil("Infinite Yield", function() loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))() end)
 
---====================================
--- ABA II: CONTEÚDO NOVO (12 BOTÕES VAZIOS)
---====================================
-local Page2Container = Instance.new("Frame", Page2)
-Page2Container.Size = UDim2.new(1, -30, 1, -20); Page2Container.Position = UDim2.new(0, 15, 0, 10); Page2Container.BackgroundTransparency = 1; Page2Container.ZIndex = 1
-
--- GRIDLAYOUT PARA 12 BOTÕES (4 COLUNAS X 3 LINHAS)
-local Page2Grid = Instance.new("UIGridLayout", Page2Container); Page2Grid.CellPadding = UDim2.new(0, 8, 0, 8); Page2Grid.CellSize = UDim2.new(0.24, 0, 0, 80); -- Ajuste para caber 4 colunas
-Page2Grid.FillDirectionMaxCells = 4; Page2Grid.HorizontalAlignment = Enum.HorizontalAlignment.Center; Page2Grid.VerticalAlignment = Enum.VerticalAlignment.Center
-
--- LOGO DO CLÃ NO FUNDO (opcional, conforme referência)
-local ClanLogo = Instance.new("ImageLabel", Page2)
-ClanLogo.Name = "ClanLogo"
-ClanLogo.Size = UDim2.new(0, 150, 0, 150); ClanLogo.Position = UDim2.new(0.5, -75, 0.5, -75); ClanLogo.BackgroundTransparency = 1
-ClanLogo.Image = "rbxassetid://130442473593917"; -- ID de exemplo da logo
-ClanLogo.ImageTransparency = 0.8 -- Mais transparente para não cobrir os botões
-ClanLogo.ZIndex = 0
-
--- CRIAÇÃO DOS 12 BOTÕES VAZIOS NA ABA II
-for i = 1, 12 do
-    local btn = Instance.new("TextButton", Page2Container)
-    btn.Name = "BtnPage2_" .. i
-    btn.Text = "" -- Vazios conforme solicitado
-    btn.BackgroundColor3 = SlotBg; btn.BackgroundTransparency = 0; btn.ZIndex = 1; Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    
-    local bStroke = Instance.new("UIStroke", btn)
-    bStroke.Color = ThemePurple; bStroke.Thickness = 1
-    
-    -- Lógica de Click (Vazia por enquanto)
-    btn.MouseButton1Click:Connect(function()
-        print("Botão " .. i .. " da Aba II clicado. Função não definida.")
-    end)
-end
+LocalPlayer.CharacterAdded:Connect(function(char) startPreventLoop(char:WaitForChild("Humanoid")) end)
+if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then startPreventLoop(LocalPlayer.Character.Humanoid) end
 
 --====================================
 -- BOTÃO DE ABRIR/FECHAR
 --====================================
 local OpenButton = Instance.new("ImageButton", Gui)
-OpenButton.Size = UDim2.new(0, 60, 0, 60); OpenButton.Position = UDim2.new(0, 30, 0.5, -25); OpenButton.Image = "rbxassetid://118141351187997"; OpenButton.ScaleType = Enum.ScaleType.Fit
-MakeDraggable(OpenButton); OpenButton.BackgroundTransparency = 1; OpenButton.ImageColor3 = Color3.new(1, 1, 1)
-OpenButton.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible; PlaylistFrame.Visible = false end)
+OpenButton.Size = UDim2.new(0, 60, 0, 60)
+OpenButton.Position = UDim2.new(0, 30, 0.5, -25)
+OpenButton.Image = "rbxassetid://115761426732173"
+OpenButton.ScaleType = Enum.ScaleType.Fit
+MakeDraggable(OpenButton)
+OpenButton.BackgroundTransparency = 1
+OpenButton.ImageColor3 = Color3.new(1, 1, 1)
 
--- INICIALIZAÇÃO ANTI-SIT LOOP
-LocalPlayer.CharacterAdded:Connect(function(char) startPreventLoop(char:WaitForChild("Humanoid")) end)
-if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then startPreventLoop(LocalPlayer.Character.Humanoid) end
+OpenButton.MouseButton1Click:Connect(function() 
+    MainFrame.Visible = not MainFrame.Visible 
+    PlaylistFrame.Visible = false 
+end)
